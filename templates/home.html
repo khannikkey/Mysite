@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    Nikkey's | Home
+{% endblock %}
+
+{% block header_extends %}
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+{% block content %}
+    <h3 class="home-content">Welcome to Nikkey's Blogging Site</h3>
+    <!-- Chart Container DOM -->
+    <div id="container"></div>
+    <div class="hot-data">
+        <h3>Today's hot blog</h3>
+        <ul>
+            {% for hot_data in today_hot_data %}
+                <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{ hot_data.content_object.title }}</a>({{ hot_data.read_num }})</li>            
+            {% empty %}
+                <li>There are no popular blogs today.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="hot-data">
+        <h3>Yesterday's popular blog</h3>
+        <ul>
+            {% for hot_data in yesterday_hot_data %}
+                <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{ hot_data.content_object.title }}</a>({{ hot_data.read_num }})</li>            
+            {% empty %}
+                <li>There are no popular blogs yesterday.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="hot-data">
+        <h3>7 days hot blog</h3>
+        <ul>
+            {% for hot_blog in hot_blogs_for_7_days %}
+                <li><a href="{% url 'blog_detail' hot_blog.id %}">{{ hot_blog.title }}</a>({{ hot_blog.read_num_sum }})</li>            
+            {% empty %}
+                <li>There are no popular blogs yesterday.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+        // Chart configuration
+        var options = {
+            chart: { type: 'line' },
+            title: { text: null },
+            xAxis: {
+                categories: {{ dates|safe }},   // x axis classification
+                tickmarkPlacement: 'on',
+                title: { text: 'Readings change in the first 7 days'},
+            },
+            yAxis: {
+                title: { text: null },
+                labels:{ enabled: false },
+                gridLineDashStyle: 'Dash',
+            },
+            series: [{                              //Data column
+                name: 'Reading volume',                     // Data column name
+                data: {{ read_nums }}               // data
+            }],
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+            legend: { enabled: false },
+            credits: { enabled: false },
+        };
+        // Chart initialization function
+        var chart = Highcharts.chart('container', options);
+    </script>
+{% endblock %}
